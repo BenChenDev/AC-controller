@@ -139,7 +139,7 @@
         {
             // decide the power every 60 second, using the fuzzy logic
             
-            if (time % 60) {
+            if (time % 60 == 0) {
                 // check the temperature, and the change of the temperature
                 
                 previous_temperature = current_temperature;
@@ -239,17 +239,15 @@
             else if(current_temperature <= 34.5){//practically, calculate the middle point between 29 and 40
                 fuzzy_sets[i][0] = 3;
                 fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_THETA_PS, current_temperature);
-
             }
             else{
                 fuzzy_sets[i][0] = 4;
                 fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_THETA_PM, current_temperature);
-
             }
         }
 
         // var membership_degree = get_membership_degree(points, current_temperature);
-        return fuzzt_sets;
+        return fuzzy_sets;
     }
     
     // It will return 2D array of 2 fuzzy sets with their membership degrees.
