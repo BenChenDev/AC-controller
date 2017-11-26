@@ -105,11 +105,11 @@
     
     var fuzzy_rules = [  // It should be a 2D array of dtheta values x theta values.
                            // E.g., 
-                        [4, -1, -1],
-                        [3,  2, -1],
-                        [2,  1, -1],
-                        [1, -1, -1],
-                        [0, -1, -1]
+                        [2, 2, 2, 3, 3],
+                        [2, 2, 2, 3, 4],
+                        [2, 2, 2, 3, 4],
+                        [2, 2, 3, 4, 4],
+                        [2, 2, 4, 4, 4]
                       ];
     
     // Fizzy membership functions
@@ -302,9 +302,34 @@
     //  output_fuzzy_sets: the return value from fuzzify(); 4 x 2
     function defuzzify(output_fuzzy_sets)
     {
-        if(output_fuzzy_sets[0][0] == )
+        var area = [];
+        var center = [];
+        var centroid;
+        var sum_of_area_times_center;
+        var sum_area;
 
-        return ???;
+        for(var i = 0; i < 4; i++){
+            if(output_fuzzy_sets[i][0] == 2){
+                area[i] = get_area_output_fuzzy_set(fuzzy_membership_OUTPUT_ZE, output_fuzzy_sets[i][1]);
+                center[i] = get_center_output_fuzzy_set(fuzzy_membership_OUTPUT_ZE);
+            }
+            else if(output_fuzzy_sets[i][0] == 3){
+                area[i] = get_area_output_fuzzy_set(fuzzy_membership_OUTPUT_PS, output_fuzzy_sets[i][1]);
+                center[i] = get_center_output_fuzzy_set(fuzzy_membership_OUTPUT_PS);
+            }
+            else if(output_fuzzy_sets[i][0] == 4){
+                area[i] = get_area_output_fuzzy_set(fuzzy_membership_OUTPUT_PM, output_fuzzy_sets[i][1]);
+                center[i] = get_center_output_fuzzy_set(fuzzy_membership_OUTPUT_PM);
+            }
+        }
+
+        for(var j = 0; j < 4; j++){
+            sum_of_area_times_center += area[j] * center[j];
+            sum_area += area[j];
+        }
+
+        centroid = sum_of_area_times_center / sum_area;
+        return centroid;
     }
     
     // get the area of trapzoid for an OUTPUT fuzzy set of a certain membership degree
@@ -336,6 +361,11 @@
 
     function get_crisp_value_right_side(points, membership_degree) {
     return points[2] - ((points[2] - points[1]) * membership_degree);
+    }
+
+    //get center of triangle
+    function get_center_output_fuzzy_set(points) {
+        return points[0] + points[1] + points[2] / 3;
     }
 </script>
 </html>
