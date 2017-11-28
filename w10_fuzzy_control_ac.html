@@ -4,7 +4,7 @@
 <head>
     <title>Fuzzy Control for AC</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://cs.tru.ca/~mlee/comp3710/Fall2017/6. seminars_labs_project/w10_fuzzy_control_ac.min.js"></script>
+    <script src="https://cs.tru.ca/~mlee/comp3710/Fall2017/6.%20seminars_labs_project/w10_fuzzy_control_ac.min.js"></script>
 </head>
 
 <body>
@@ -105,11 +105,11 @@
     
     var fuzzy_rules = [  // It should be a 2D array of dtheta values x theta values.
                            // E.g., 
-                        [2, 2, 2, 3, 3],
-                        [2, 2, 2, 3, 4],
-                        [2, 2, 2, 3, 4],
-                        [2, 2, 3, 4, 4],
-                        [2, 2, 4, 4, 4]
+                        [2, 3, 3],
+                        [2, 3, 4],
+                        [2, 3, 4],
+                        [3, 4, 4],
+                        [4, 4, 4]
                       ];
     
     // Fizzy membership functions
@@ -125,9 +125,9 @@
     var fuzzy_membership_DTHETA_PS = [0, 2.5, 5];
     var fuzzy_membership_DTHETA_PM = [2.5, 5, 5];
     
-    var fuzzy_membership_OUTPUT_ZE = [0, 0, 5.5];
-    var fuzzy_membership_OUTPUT_PS = [0, 5.5, 10];
-    var fuzzy_membership_OUTPUT_PM = [5.5, 10, 10];
+    var fuzzy_membership_OUTPUT_ZE = [0, 0, 5];
+    var fuzzy_membership_OUTPUT_PS = [0, 5, 10];
+    var fuzzy_membership_OUTPUT_PM = [5, 10, 10];
     
     
     // This function will be invoked when the 'Start' button is clicked.
@@ -139,16 +139,20 @@
         {
             // decide the power every 60 second, using the fuzzy logic
             
-            if (time % 60 == 0) {
+            if (time % 60) {
                 // check the temperature, and the change of the temperature
-                
+                // console.log("current_temperature " + current_temperature);
                 previous_temperature = current_temperature;
                 current_temperature = check_temperature();  // new current_temperature
-                change_temperature = previous_temperature - current_temperature;
-                
+                // console.log("check_temerature " + current_temperature);
+
+                change_temperature = current_temperature - previous_temperature;
+                // console.log("change_temperature "+ change_temperature);
+
                 // decide the power using the fuzzy logic
                 power = decide_power_using_fuzzy_logic(current_temperature, change_temperature);
-                
+
+                // console.log("power： " + power);
                 // draw a curve of temperatures
                 //  just for demonstration
                 draw_circle(ctx, time/(60*60*24) * MAP_WIDTH, (current_temperature-18) * ((MAP_HEIGHT-50)/16) + 50, .5, 0);
@@ -175,7 +179,7 @@
         output_fuzzy_sets = fuzzify(current_temperature, change_temperature);
         
         crisp_output = defuzzify(output_fuzzy_sets);
-        
+        // crisp_output = 1;
         return crisp_output;
     }
  
@@ -191,23 +195,25 @@
         
         // inference
         // get output fuzzy sets
-        
+        // console.log("dtheat1: " + dtheta_fuzzy_sets[0][0]);
+        // console.log("theat1: " + theta_fuzzy_sets[0][0]);
         output_fuzzy_sets[0] = [];
-        output_fuzzy_sets[0][0] = fuzzy_rules[theta_fuzzy_sets[0][0]][dtheta_fuzzy_sets[0][0]];
-        output_fuzzy_sets[0][1] = Math.min(theta_fuzzy_sets[0][1], dtheta_fuzzy_sets[0][1]);
+        output_fuzzy_sets[0][0] = fuzzy_rules[dtheta_fuzzy_sets[0][0]][theta_fuzzy_sets[0][0]];
+        // console.log("dtheat: " + dtheta_fuzzy_sets[0][0]);
+        // console.log("theat: " + theta_fuzzy_sets[0][0]);
+        output_fuzzy_sets[0][1] = Math.min(theta_fuzzy_sets[0][1], dtheta_fuzzy_sets[0][1]);    
         
         // for three other cases
-
         output_fuzzy_sets[1] = [];
-        output_fuzzy_sets[1][0] = fuzzy_rules[theta_fuzzy_sets[0][0]][dtheta_fuzzy_sets[1][0]];
+        output_fuzzy_sets[1][0] = fuzzy_rules[dtheta_fuzzy_sets[0][0]][theta_fuzzy_sets[1][0]];
         output_fuzzy_sets[1][1] = Math.min(theta_fuzzy_sets[0][1], dtheta_fuzzy_sets[1][1]);
-
+        
         output_fuzzy_sets[2] = [];
-        output_fuzzy_sets[2][0] = fuzzy_rules[theta_fuzzy_sets[1][0]][dtheta_fuzzy_sets[0][0]];
+        output_fuzzy_sets[2][0] = fuzzy_rules[dtheta_fuzzy_sets[1][0]][theta_fuzzy_sets[0][0]];
         output_fuzzy_sets[2][1] = Math.min(theta_fuzzy_sets[1][1], dtheta_fuzzy_sets[0][1]);
 
         output_fuzzy_sets[3] = [];
-        output_fuzzy_sets[3][0] = fuzzy_rules[theta_fuzzy_sets[1][0]][dtheta_fuzzy_sets[1][0]];
+        output_fuzzy_sets[3][0] = fuzzy_rules[dtheta_fuzzy_sets[1][0]][theta_fuzzy_sets[1][0]];
         output_fuzzy_sets[3][1] = Math.min(theta_fuzzy_sets[1][1], dtheta_fuzzy_sets[1][1]);
        
         // for a multiple occurrence of any output fuzzy set
@@ -221,7 +227,10 @@
         }
         
         // return the output fuzzy sets
-        
+        // console.log("output_fuzzy_sets: " + output_fuzzy_sets[0][0] + ", "+ output_fuzzy_sets[0][1]);
+        // console.log("output_fuzzy_sets: " + output_fuzzy_sets[1][0] + ", "+ output_fuzzy_sets[1][1]);
+        // console.log("output_fuzzy_sets: " + output_fuzzy_sets[2][0] + ", "+ output_fuzzy_sets[2][1]);
+        // console.log("output_fuzzy_sets: " + output_fuzzy_sets[3][0] + ", "+ output_fuzzy_sets[3][1]);
         return output_fuzzy_sets;
     }
     
@@ -230,23 +239,25 @@
     function fuzzify_theta(current_temperature)
     {
         var fuzzy_sets = [];
-        
-        for(var i = 0; i < 2; i++){
-            if(current_temperature <= 23.5){//practically, calculate the middle point between 18 and 29
-                fuzzy_sets[i][0] = 2;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_THETA_ZE, current_temperature);
+        if(current_temperature <= 29){
+            fuzzy_sets[0] = [];
+            fuzzy_sets[1] = [];
+            fuzzy_sets[0][0] = 0;
+            fuzzy_sets[0][1] = get_membership_degree(fuzzy_membership_THETA_ZE, current_temperature);
+            // console.log("degree 1: " + fuzzy_sets[0][1]);
+            fuzzy_sets[1][0] = 1;
+            fuzzy_sets[1][1] = get_membership_degree(fuzzy_membership_THETA_PS, current_temperature);
+            // console.log("degree 2: " + fuzzy_sets[1][1]);
             }
-            else if(current_temperature <= 34.5){//practically, calculate the middle point between 29 and 40
-                fuzzy_sets[i][0] = 3;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_THETA_PS, current_temperature);
-            }
-            else{
-                fuzzy_sets[i][0] = 4;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_THETA_PM, current_temperature);
-            }
+        else{
+            fuzzy_sets[0] = [];
+            fuzzy_sets[1] = [];
+            fuzzy_sets[0][0] = 1;
+            fuzzy_sets[0][1] = get_membership_degree(fuzzy_membership_THETA_PS, current_temperature);
+            fuzzy_sets[1][0] = 2;
+            fuzzy_sets[1][1] = get_membership_degree(fuzzy_membership_THETA_PM, current_temperature);
         }
-
-        // var membership_degree = get_membership_degree(points, current_temperature);
+           
         return fuzzy_sets;
     }
     
@@ -255,32 +266,43 @@
     function fuzzify_dtheta(change_temperature)
     {
         var fuzzy_sets = [];
-
-        for(var i = 0; i < 2; i++){
-            if(change_temperature <= -3.75){//practically, calculate the middle point between -5 and -2.5
-                fuzzy_sets[i][0] = 0;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_DTHETA_NM, change_temperature);
-            }
-            else if(change_temperature <= -1.25){//practically, calculate the middle point between -2.5 and 0
-                fuzzy_sets[i][0] = 1;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_DTHETA_NS, change_temperature);
-
-            }
-            else if(change_temperature <= 1.25){//practically, calculate the middle point between 0 and 2.5
-                fuzzy_sets[i][0] = 2;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_DTHETA_ZE, change_temperature);
-            }
-            else if(change_temperature <= 3.75){//practically, calculate the middle point between 2.5 and 5
-                fuzzy_sets[i][0] = 3;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_DTHETA_PS, change_temperature);
-            }
-            else{//change_temperture is belong to PM
-                fuzzy_sets[i][0] = 4;
-                fuzzy_sets[i][1] = get_membership_degree(fuzzy_membership_DTHETA_PM, change_temperature);
-
-            }
+        if(change_temperature <= -2.5){
+            fuzzy_sets[0] = [];
+            fuzzy_sets[1] = [];
+            fuzzy_sets[0][0] = 0;
+            fuzzy_sets[0][1] = get_membership_degree(fuzzy_membership_DTHETA_NM, change_temperature);
+            fuzzy_sets[1][0] = 1;
+            fuzzy_sets[1][1] = get_membership_degree(fuzzy_membership_DTHETA_NS, change_temperature);
         }
-
+        else if(change_temperature <= 0){
+            fuzzy_sets[0] = [];
+            fuzzy_sets[1] = [];
+            fuzzy_sets[0][0] = 1;
+            fuzzy_sets[0][1] = get_membership_degree(fuzzy_membership_DTHETA_NS, change_temperature);
+            fuzzy_sets[1][0] = 2;
+            fuzzy_sets[1][1] = get_membership_degree(fuzzy_membership_DTHETA_ZE, change_temperature);
+        }
+        else if(change_temperature <= 2.5){
+            fuzzy_sets[0] = [];
+            fuzzy_sets[1] = [];
+            fuzzy_sets[0][0] = 2;
+            fuzzy_sets[0][1] = get_membership_degree(fuzzy_membership_DTHETA_ZE, change_temperature);
+            fuzzy_sets[1][0] = 3;
+            fuzzy_sets[1][1] = get_membership_degree(fuzzy_membership_DTHETA_PS, change_temperature);
+        }
+        else{
+            fuzzy_sets[0] = [];
+            fuzzy_sets[1] = [];
+            fuzzy_sets[0][0] = 3;
+            fuzzy_sets[0][1] = get_membership_degree(fuzzy_membership_DTHETA_PS, change_temperature);
+            fuzzy_sets[1][0] = 4;
+            fuzzy_sets[1][1] = get_membership_degree(fuzzy_membership_DTHETA_PM, change_temperature);
+            //  console.log("fuzzy_sets[0][0]: " + fuzzy_sets[0][0]);
+            //   console.log("fuzzy_sets[0][1]: " + fuzzy_sets[0][1]);
+            //    console.log("fuzzy_sets[1][0]: " + fuzzy_sets[1][0]);
+            //     console.log("fuzzy_sets[1][1]: " + fuzzy_sets[1][1]);
+        }
+       
         return fuzzy_sets;
     }
     
@@ -291,9 +313,9 @@
         return 0;
     
     if (crisp_value <= points[1])  // left side
-        return (crisp_value - points[0]) / (points[1] - points[0]);
+       { return (crisp_value - points[0]) / (points[1] - points[0]);}
     else  // right side
-        return (points[2] - crisp_value) / (points[2] - points[1]);
+        {return (points[2] - crisp_value) / (points[2] - points[1]);}
     }
     
     // It will return a crips value
@@ -302,32 +324,45 @@
     {
         var area = [];
         var center = [];
-        var centroid;
-        var sum_of_area_times_center;
-        var sum_area;
+        var centroid = 0;
 
         for(var i = 0; i < 4; i++){
             if(output_fuzzy_sets[i][0] == 2){
+                // console.log("output_fuzzy_sets[i][1]: " + output_fuzzy_sets[i][1]);
                 area[i] = get_area_output_fuzzy_set(fuzzy_membership_OUTPUT_ZE, output_fuzzy_sets[i][1]);
                 center[i] = get_center_output_fuzzy_set(fuzzy_membership_OUTPUT_ZE);
             }
             else if(output_fuzzy_sets[i][0] == 3){
+                // console.log("output_fuzzy_sets[i][1]: " + output_fuzzy_sets[i][1]);
                 area[i] = get_area_output_fuzzy_set(fuzzy_membership_OUTPUT_PS, output_fuzzy_sets[i][1]);
                 center[i] = get_center_output_fuzzy_set(fuzzy_membership_OUTPUT_PS);
             }
             else if(output_fuzzy_sets[i][0] == 4){
+                // console.log("output_fuzzy_sets[i][1]: " + output_fuzzy_sets[i][1]);
                 area[i] = get_area_output_fuzzy_set(fuzzy_membership_OUTPUT_PM, output_fuzzy_sets[i][1]);
                 center[i] = get_center_output_fuzzy_set(fuzzy_membership_OUTPUT_PM);
             }
+            else{
+                area[i] = 0;
+                center[i] = 0;
+            }
         }
+        // console.log("area 0: " + area[0]);
+        // console.log("area 1: " + area[1]);
+        // console.log("area 2: " + area[2]);
+        // console.log("area 3: " + area[3]);
 
         for(var j = 0; j < 4; j++){
-            sum_of_area_times_center += area[j] * center[j];
-            sum_area += area[j];
+            if(area[j] == 0 || center[j] == 0){
+                centroid += 0;
+            }
+            else{
+                centroid += area[j] * center[j] / area[j];
+            }
         }
-
-        centroid = sum_of_area_times_center / sum_area;
-        return centroid;
+      
+        return centroid; 
+        
     }
     
     // get the area of trapzoid for an OUTPUT fuzzy set of a certain membership degree
@@ -340,7 +375,7 @@
             return 0;
         }
         else if(membership_degree >= 1){
-            return null;
+            return (points[2] - points[0])/2;
         }
 
         left_area = ((points[1] - points[0]) * membership_degree) 
@@ -363,7 +398,7 @@
 
     //get center of triangle
     function get_center_output_fuzzy_set(points) {
-        return points[0] + points[1] + points[2] / 3;
+        return (points[0] + points[1] + points[2]) / 3;
     }
 </script>
 </html>
