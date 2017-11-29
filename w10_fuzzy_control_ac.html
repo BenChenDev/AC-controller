@@ -297,10 +297,6 @@
             fuzzy_sets[0][1] = get_membership_degree(fuzzy_membership_DTHETA_PS, change_temperature);
             fuzzy_sets[1][0] = 4;
             fuzzy_sets[1][1] = get_membership_degree(fuzzy_membership_DTHETA_PM, change_temperature);
-            //  console.log("fuzzy_sets[0][0]: " + fuzzy_sets[0][0]);
-            //   console.log("fuzzy_sets[0][1]: " + fuzzy_sets[0][1]);
-            //    console.log("fuzzy_sets[1][0]: " + fuzzy_sets[1][0]);
-            //     console.log("fuzzy_sets[1][1]: " + fuzzy_sets[1][1]);
         }
        
         return fuzzy_sets;
@@ -347,11 +343,7 @@
                 center[i] = 0;
             }
         }
-        // console.log("area 0: " + area[0]);
-        // console.log("area 1: " + area[1]);
-        // console.log("area 2: " + area[2]);
-        // console.log("area 3: " + area[3]);
-
+        
         for(var j = 0; j < 4; j++){
             if(area[j] == 0 || center[j] == 0){
                 centroid += 0;
